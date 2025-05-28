@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maringa Wiki - Chat com Histórico</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    /* Ajusta altura do header */
+    header {
+      height: 48px;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+    }
+    body {
+      padding-top: 48px; /* Espaço para header fixo */
+    }
+    /* Largura principal do chat*/
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem; /* Menor padding lateral */
+    }
+    /* Ícone compartilhar maior, com traço mais grosso e cursor pointer */
+    #btnCompartilhar svg {
+      stroke-width: 3;
+      cursor: pointer;
+      transition: stroke 0.2s ease;
+    }
+    #btnCompartilhar:hover svg {
+      stroke: #166534; /* tom verde mais forte no hover */
+    }
+  </style>
+</head>
+<body class="bg-white h-screen flex">
+
+  <!-- Cabeçalho fixo -->
+  <header class="fixed top-0 left-0 right-0 bg-white shadow-md flex items-center justify-between px-4 z-10">
+    <h1 class="text-lg font-semibold text-left select-none">Maringa Wiki</h1>
+    <button id="btnCompartilhar" class="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none" aria-label="Compartilhar chat">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 12v1a4 4 0 004 4h8" />
+        <path d="M16 8l-4-4-4 4" />
+        <path d="M12 20v-8" />
+      </svg>
+      Compartilhar
+    </button>
+  </header>
+
+  <!-- Histórico lateral -->
+  <aside class="w-72 bg-white border-r border-gray-300 p-4 overflow-y-auto flex flex-col">
+    <div class="mb-4 flex justify-center">
+      <img src="logo.png" alt="Logo Maringá" class="h-16 object-contain" />
+    </div>
+    <br><br>
+    <button id="novaConversa" class="flex items-center gap-2 rounded px-3 py-2 mb-4 hover:bg-gray-100">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
+      </svg>
+      Nova Conversa
+    </button>
+    <br><br>
+    <h2 class="flex items-center gap-2 mb-2 text-xl font-semibold font-sans">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      Histórico
+    </h2>
+
+    <ul id="historico" class="flex-1 space-y-2 overflow-y-auto font-sans">
+      <!-- Históricos vão aqui -->
+    </ul>
+  </aside>
+
+  <!-- Área principal do chat -->
+  <main>
+
+    <div id="chat" class="flex-1 bg-white p-4 rounded shadow overflow-y-auto mb-4 max-w-full" style="min-height: 300px;">
+      <!-- Conversa ativa -->
+    </div>
+
+    <form id="form" class="flex gap-2 max-w-full">
+      <input id="pergunta" type="text" placeholder="Digite sua pergunta..." 
+        class="flex-1 p-2 rounded-lg outline-none focus:ring-2 focus:ring-green-700" required />
+      
+      <button type="submit" style="background-color: #1E5D3E;" 
+        class="p-3 rounded-full text-white hover:opacity-90 transition" aria-label="Enviar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+    </form>
+
+  </main>
+
+  <script>
+    // Variáveis
+    const form = document.getElementById('form');
+    const input = document.getElementById('pergunta');
+    const chat = document.getElementById('chat');
+    const historicoEl = document.getElementById('historico');
+    const novaConversaBtn = document.getElementById('novaConversa');
+
+    // Estado da conversa
+    let conversas = JSON.parse(localStorage.getItem('conversas')) || [];
+    let conversaAtivaId = null;
+
+    // Renderiza lista do histórico lateral ordenada por data desc (mais recente primeiro)
+    function renderHistorico() {
+      historicoEl.innerHTML = '';
+
+      // Ordena pelo timestamp desc
+      conversas.sort((a, b) => b.data - a.data);
+
+      conversas.forEach((conversa, idx) => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-2 bg-white rounded cursor-pointer hover:bg-green-100 mb-1';
+
+        const tituloTexto = conversa.titulo || `Conversa ${idx + 1}`;
+        const tituloEl = document.createElement('span');
+        tituloEl.textContent = tituloTexto;
+        tituloEl.className = conversaAtivaId === conversa.id ? 'font-bold text-green-700' : '';
+        tituloEl.style.flexGrow = '1';
+        tituloEl.onclick = () => {
+          conversaAtivaId = conversa.id;
+          renderHistorico();
+          renderChat();
+        };
+
+        const excluirBtn = document.createElement('button');
+        excluirBtn.textContent = '✕';
+        excluirBtn.title = 'Excluir conversa';
+        excluirBtn.className = 'text-red-600 hover:text-red-900 font-bold ml-2';
+        excluirBtn.onclick = (e) => {
+          e.stopPropagation(); // para não ativar seleção da conversa
+          excluirConversa(conversa.id);
+        };
+
+        li.appendChild(tituloEl);
+        li.appendChild(excluirBtn);
+        historicoEl.appendChild(li);
+      });
+    }
+
+    // Renderiza mensagens da conversa ativa
+    function renderChat() {
+      chat.innerHTML = '';
+      if (!conversaAtivaId) {
+        chat.innerHTML = '<p class="text-gray-500 italic">Digite algo para começar a conversar.</p>';
+        return;
+      }
+      const conversa = conversas.find(c => c.id === conversaAtivaId);
+      if (!conversa || !conversa.mensagens) return;
+
+      conversa.mensagens.forEach(msg => {
+        const div = document.createElement('div');
+        if(msg.tipo === 'usuario') {
+          div.className = 'text-right';
+          div.innerHTML = `<p class="bg-gray-100 p-2 rounded inline-block mb-2">${msg.texto}</p>`;
+        } else {
+          div.innerHTML = `<p class="p-2 inline-block mb-2 text-gray-800">${msg.texto}</p>`;
+        }
+        chat.appendChild(div);
+      });
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Cria nova conversa
+    function criarNovaConversa() {
+      const id = Date.now().toString();
+      const nova = { id, titulo: null, mensagens: [], data: Date.now() };
+      conversas.push(nova);
+      conversaAtivaId = id;
+      salvarConversas();
+      renderHistorico();
+      renderChat();
+    }
+
+    // Salva no localStorage
+    function salvarConversas() {
+      localStorage.setItem('conversas', JSON.stringify(conversas));
+    }
+
+    // Atualiza o título da conversa baseado na primeira pergunta
+    function atualizarTitulo(conversa) {
+      if (!conversa.titulo && conversa.mensagens.length) {
+        const primeiraPergunta = conversa.mensagens.find(m => m.tipo === 'usuario');
+        if(primeiraPergunta) {
+          conversa.titulo = primeiraPergunta.texto.substring(0, 30) + (primeiraPergunta.texto.length > 30 ? '...' : '');
+        }
+      }
+    }
+
+    // Excluir conversa pelo id
+    function excluirConversa(id) {
+      conversas = conversas.filter(c => c.id !== id);
+      // Se a conversa ativa foi excluída, ativa a primeira disponível ou nenhuma
+      if (conversaAtivaId === id) {
+        conversaAtivaId = conversas.length > 0 ? conversas[0].id : null;
+      }
+      salvarConversas();
+      renderHistorico();
+      renderChat();
+    }
+
+    // Evento do formulário
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      // Se não tiver conversa ativa, cria uma nova automaticamente
+      if (!conversaAtivaId) {
+        criarNovaConversa();
+      }
+
+      const conversa = conversas.find(c => c.id === conversaAtivaId);
+
+      // Atualiza data última mensagem para ordenar histórico
+      conversa.data = Date.now();
+
+      // Adiciona pergunta do usuário
+      conversa.mensagens.push({ tipo: 'usuario', texto });
+
+      renderChat();
+      salvarConversas();
+
+      input.value = '';
+      input.disabled = true;
+
+      // Simula resposta da IA (pode ser substituído pela API real)
+      setTimeout(() => {
+        const resposta = `Resposta simulada para: "${texto}"`;
+        conversa.mensagens.push({ tipo: 'bot', texto: resposta });
+        atualizarTitulo(conversa);
+        salvarConversas();
+        renderChat();
+        renderHistorico();
+        input.disabled = false;
+        input.focus();
+      }, 1000);
+    });
+
+    // Botão nova conversa
+    novaConversaBtn.addEventListener('click', () => {
+      criarNovaConversa();
+    });
+
+    // Botão compartilhar (exemplo simples)
+    document.getElementById('btnCompartilhar').addEventListener('click', () => {
+      alert('Funcionalidade de compartilhar ainda não implementada.');
+    });
+
+    // Inicializa
+    if (conversas.length > 0) {
+      conversaAtivaId = conversas[0].id;
+    }
+    renderHistorico();
+    renderChat();
+
+  </script>
+</body>
+</html>
