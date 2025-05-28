@@ -4,6 +4,10 @@
     "resposta": "Ferramenta focada em viagens corporativas para reservar produtos, despesas e políticas de viagem a mecedores"
   },
   {
+    "pergunta": "Como resetar minha senha do Lemontech?",
+    "resposta": "Na página inicial de login, clique em esqueceu a senha, insirar o código de verificação e clique em Enviar. Um link para atualização de senha chegará no e-mail cadastrado no sistema "
+  },
+  {
     "pergunta": "As conexões entre o cliente/servidor são seguras? Se sim, qual tecnologia e versão?",
     "resposta": "TLSv1.2"
   },
