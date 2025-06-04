@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Maringa Wiki - Chat com Histórico</title>
+  <title>Chat Wiki</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
     header { height: 48px; padding-top: 0.25rem; padding-bottom: 0.25rem; }
@@ -14,14 +14,14 @@
       cursor: pointer;
       transition: stroke 0.2s ease;
     }
-    #btnCompartilhar:hover svg { stroke: #166534; }
+    #btnCompartilhar:hover svg { stroke: #0c0a42; }
   </style>
 </head>
 <body class="bg-white h-screen flex">
 
   <!-- Cabeçalho fixo -->
   <header class="fixed top-0 left-0 right-0 bg-white shadow-md flex items-center justify-between px-4 z-10">
-    <h1 class="text-lg font-semibold text-left select-none">Maringa Wiki</h1>
+    <h1 class="text-lg font-semibold text-left select-none">Chat Wiki - Leonardi</h1>
     <button id="btnCompartilhar" class="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none" aria-label="Compartilhar chat">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 12v1a4 4 0 004 4h8" />
@@ -61,7 +61,7 @@
     <div id="chat" class="flex-1 bg-white p-4 rounded shadow overflow-y-auto mb-4 max-w-full" style="min-height: 300px;"></div>
     <form id="form" class="flex gap-2 max-w-full">
       <input id="pergunta" type="text" placeholder="Digite sua pergunta..." class="flex-1 p-2 rounded-lg outline-none focus:ring-2 focus:ring-green-700" required />
-      <button type="submit" style="background-color: #1E5D3E;" class="p-3 rounded-full text-white hover:opacity-90 transition" aria-label="Enviar">
+      <button type="submit" style="background-color: #0c0a42;" class="p-3 rounded-full text-white hover:opacity-90 transition" aria-label="Enviar">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
